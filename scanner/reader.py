@@ -4,15 +4,19 @@ class Reader:
         self.filepath = filepath
         self.file = open(self.filepath, 'r')
         self.line = ""
-        self.read_line()
         self.line_number = 0
         self.index = 0
+        self.read_line()
 
     def get_current_line_number(self):
         return self.line_number
 
     def read_line(self):
-        self.line = self.file.readline()
+        try:
+            self.line = self.file.readline()
+        except:
+            print("tried to read non-existant line")
+            self.line = ""
         self.line_number += 1
         self.index = 0
 
