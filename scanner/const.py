@@ -7,5 +7,5 @@ star_symbol = ['*']
 all_symbols = symbol + equal_symbol + slash_symbol + star_symbol
 new_line = ['\n']
 whitespace = [' ', '\n', '\r', '\t', '\v', '\f']
-keywords = ['if', 'else', 'void', 'int', 'while', "break", 'switch', 'default', 'case', 'return', 'endif', 'output']
+keywords = ['break', 'else', 'if', 'int', 'while', 'return', 'void', 'default', 'main']
 valid_chars = letters + digits + all_symbols + whitespace + ['']

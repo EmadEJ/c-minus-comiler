@@ -3,7 +3,7 @@ import types
 
 class State:
     
-    def __init__(self, ID, final_type, index_back, invalid_transition = -1):
+    def __init__(self, ID, final_type: str, index_back, invalid_transition = -1):
         self.ID = ID
         self.final_type = final_type
         self.index_type = index_back
@@ -20,7 +20,7 @@ class State:
         if char not in const.valid_chars:
             return self.invalid_transition
         if char not in self.transition.keys():
-            print(f"transition not defined on {self.ID} on {char}")
+            print(f"Err: transition not defined on {self.ID} on {char}")
             return None
         return self.transition[char]
     
@@ -29,7 +29,7 @@ class DFA:
     
     def __init__(self):
         self.states: dict[int, State] = {}
-        self.start_state = None
+        self.start_state = 0
         self.current = self.start_state
         
         self.construct_DFA()
@@ -52,10 +52,11 @@ class DFA:
         result = self.states[self.current].transit(char)
     
         if not isinstance(result, int):
+            print("Err: DFA invalid transit")
             return result
         
         self.current = result
-        return None
+        return self.states[self.current]
 
     def reset(self):
         self.current = self.start_state
