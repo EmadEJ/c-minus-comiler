@@ -38,22 +38,22 @@ class DFA:
         # State definition
         self.add_state(-1, token_types.INVALID_INPUT, False)  # Invalid input
         self.add_state(0, None, None)  # Start
-        self.add_state(1, None, None)  # 4
+        self.add_state(1, None, None, 2)  # 4 [INVALID: to Text]
         self.add_state(2, token_types.ID, True)  # Text
-        self.add_state(3, None, None)  # /
-        self.add_state(4, None, None, 4)  # * INVALID PRUNE
-        self.add_state(5, None, None, 4)  # 3 INVALID PRUNE
+        self.add_state(3, None, None, 8)  # / [INVALID: to S*]
+        self.add_state(4, None, None, 4)  # * [INVALID: to *]
+        self.add_state(5, None, None, 4)  # 3 [INVALID: to *]
         self.add_state(6, token_types.COMMENT, False)  # COMM
         self.add_state(7, token_types.UNCLOSED_COMMENT, True)  # Unclosed comment error
         self.add_state(8, token_types.SYMBOL, True)  # S*
-        self.add_state(9, None, None)  # 2
+        self.add_state(9, None, None, 8)  # 2 [INVALID: to S*]
         self.add_state(10, token_types.UNMATCHED_COMMENT, False)  # Unmatched comment error
-        self.add_state(11, None, None)  # =
+        self.add_state(11, None, None, 8)  # = [INVALID: to S*]
         self.add_state(12, token_types.SYMBOL, False)  # S
-        self.add_state(13, None, None)  # 1
+        self.add_state(13, None, None)  # 1 [INVALID: to NUM]
         self.add_state(14, token_types.NUMBER, True)  # NUM
         self.add_state(15, token_types.INVALID_NUMBER, False)  # Invalid number error
-        self.add_state(16, None, None, 17) # 0
+        self.add_state(16, None, None, 17) # 0 [INVALID: to Whitespace]
         self.add_state(17, token_types.WHITESPACE, True) # Whitespace
         self.add_state(18, token_types.EOF, False)
         

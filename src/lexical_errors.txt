@@ -1,1 +1,4 @@
-There is no lexical error.
+2.	(2x, Invalid number) (2a, Invalid number) 
+4.	(2x, Invalid number) 
+7.	($, Invalid input) (2x, Invalid number) 
+9.	(#, Invalid input) 
