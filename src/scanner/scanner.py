@@ -9,7 +9,7 @@ class Scanner:
         self.dfa = DFA()
         self.tokens = {}
         self.errors = {}
-        self.symbol_table = const.keywords
+        self.symbol_table = const.keywords.copy()
         
     def add_token(self, line, token):
         if not line in self.tokens.keys():
@@ -36,10 +36,10 @@ class Scanner:
                     self.reader.unread_char()
                     token = token[:-1]
                 
-                if cur_state.final_type.endswith("ERROR"):
+                if cur_state.final_type in token_types.ERRORS:
                     self.add_error(self.reader.line_number, (token, cur_state.final_type))
                     # self.reader.read_line()
-                elif cur_state.final_type not in [token_types.WHITESPACE, token_types.EOF] :
+                elif cur_state.final_type not in [token_types.COMMENT, token_types.WHITESPACE, token_types.EOF]:
                     if cur_state.final_type == token_types.ID:
                         if token in const.keywords:
                             self.add_token(self.reader.line_number, (token_types.KEYWORD, token))
@@ -70,6 +70,9 @@ class Scanner:
                 for error in errors:
                     error_file.write(f"({error[0]}, {error[1]}) ")
                 error_file.write("\n")
+
+            if len(self.errors) == 0:
+                error_file.write("There is no lexical error.")
         
         with open(path_symbol_table, "w") as symbol_table_file:
             for idx, lexeme in enumerate(self.symbol_table):
