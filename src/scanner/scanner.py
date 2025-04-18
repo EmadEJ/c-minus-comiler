@@ -64,14 +64,14 @@ class Scanner:
                     break
     
     def save(self, path_token, path_error, path_symbol_table):
-        with open(path_token, "w") as token_file:
+        with open(path_token, "w", encoding='utf-8') as token_file:
             for line, tokens in self.tokens.items():
                 token_file.write(f"{line}.\t")
                 for token in tokens:
                     token_file.write(f"({token[0]}, {token[1]}) ")
                 token_file.write("\n")
         
-        with open(path_error, "w",encoding='utf-8') as error_file:
+        with open(path_error, "w", encoding='utf-8') as error_file:
             for line, errors in self.errors.items():
                 error_file.write(f"{line}.\t")
                 for error in errors:
@@ -81,6 +81,6 @@ class Scanner:
             if len(self.errors) == 0:
                 error_file.write("There is no lexical error.")
         
-        with open(path_symbol_table, "w") as symbol_table_file:
+        with open(path_symbol_table, "w", encoding='utf-8') as symbol_table_file:
             for idx, lexeme in enumerate(self.symbol_table):
                 symbol_table_file.write(f"{idx+1}.\t{lexeme}\n")
