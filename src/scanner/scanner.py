@@ -17,6 +17,12 @@ class Scanner:
         self.tokens[line].append(token)
     
     def add_error(self, line, error):
+
+        if error[1] == token_types.UNCLOSED_COMMENT:
+            (token, typ) = error
+            line = max(line - token.count('\n'), 0)
+            short_token = token if len(token) <= 7 else token[:7] + "..."
+            error = (short_token, typ)
         if not line in self.errors.keys():
             self.errors[line] = []
         self.errors[line].append(error)

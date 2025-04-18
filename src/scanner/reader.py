@@ -2,12 +2,13 @@ class Reader:
 
     def __init__(self, filepath):
         self.filepath = filepath
+        self.max_line_number = self.count_lines(filepath)
         self.file = open(self.filepath, 'r')
         self.line = ""
         self.line_number = 0
         self.index = 0
         self.read_line()
-
+            
     def get_current_line_number(self):
         return self.line_number
 
@@ -17,8 +18,10 @@ class Reader:
         except:
             print("tried to read non-existant line")
             self.line = ""
-        self.line_number += 1
+        self.line_number = min(self.line_number + 1, self.max_line_number) 
         self.index = 0
+    
+
 
     def read_char(self):
         if self.line == '':
@@ -40,3 +43,22 @@ class Reader:
         
         self.index -= 1
         return 0
+    
+    def count_lines(self, filepath):
+        try:
+            with open(filepath, 'r', encoding='utf-8') as file:
+                line_count = 0
+                while True:
+                    char = file.read(1)
+                    if not char:
+                        break
+                    if char == '\n':
+                        line_count += 1
+                
+                return line_count+1
+        except FileNotFoundError:
+            print("File not found.")
+            return -1
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return -1

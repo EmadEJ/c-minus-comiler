@@ -5,6 +5,10 @@ from scanner.scanner import Scanner
 # Amirhossein MaleckMohammadi - 401106577
 
 
+
+
 scanner = Scanner("input.txt")
 scanner.scan()
 scanner.save("tokens.txt", "lexical_errors.txt", "symbol_table.txt")
+
+
