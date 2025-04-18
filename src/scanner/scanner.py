@@ -71,7 +71,7 @@ class Scanner:
                     token_file.write(f"({token[0]}, {token[1]}) ")
                 token_file.write("\n")
         
-        with open(path_error, "w") as error_file:
+        with open(path_error, "w",encoding='utf-8') as error_file:
             for line, errors in self.errors.items():
                 error_file.write(f"{line}.\t")
                 for error in errors:

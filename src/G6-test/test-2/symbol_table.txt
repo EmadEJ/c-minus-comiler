@@ -5,6 +5,8 @@
 5.	while
 6.	return
 7.	void
-8.	main1
+8.	main
 9.	a
-10.	main2
+10.	Invalid
+11.	character
+12.	identifierAtEnd

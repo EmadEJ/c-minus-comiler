@@ -1,0 +1,14 @@
+void main() {
+    int a = 10;
+    int b = 20;
+    if (a < b) {
+        a = a + 5;
+	/* this is a comment
+حروف فارسی در کامنت
+@#$I(*&^
+*/
+    } else {
+        a = a - 5;
+    }
+    return 0;
+}

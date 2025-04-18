@@ -3,7 +3,7 @@ class Reader:
     def __init__(self, filepath):
         self.filepath = filepath
         self.max_line_number = self.count_lines(filepath)
-        self.file = open(self.filepath, 'r')
+        self.file = open(self.filepath, 'r', encoding="utf-8")
         self.line = ""
         self.line_number = 0
         self.index = 0
