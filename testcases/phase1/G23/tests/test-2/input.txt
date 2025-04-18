@@ -1,0 +1,12 @@
+/*
+ * Test Case Description:
+ * Tests potentially ambiguous sequences or adjacent operators/errors.
+ */
+int main(void) {
+    int a = 1a; /* Should be NUM(1) ID(a) or error depending on spec */
+    int b = ==; /* Should be SYMBOL(==) SYMBOL(=) or maybe just SYMBOL(==)? */
+    b = !=!;    /* Should be SYMBOL(!=) followed by error(!) or SYMBOL(!=) SYMBOL(!) ? */
+    a = / *b;   /* SYMBOL(/) SYMBOL(*) ID(b) - space matters! */
+    a = /*b;    /* Comment start then ID */
+    return 0;
+}

@@ -1,0 +1,10 @@
+int a = 0123x;
+ /* multi
+    line
+    comment */
+c = a *? 4;
+d = 6e;
+ /$ 
+e = 7;
+fgh! = 8;
+g = 9;

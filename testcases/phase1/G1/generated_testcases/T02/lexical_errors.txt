@@ -1,0 +1,5 @@
+1.	(0123x, Invalid number) 
+5.	(*?, Invalid input) 
+6.	(6e, Invalid number) 
+7.	(/$, Invalid input) 
+9.	(fgh!, Invalid input) 

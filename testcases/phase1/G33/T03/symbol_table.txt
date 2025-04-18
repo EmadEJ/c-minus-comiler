@@ -1,0 +1,13 @@
+1.	ans
+2.	break
+3.	def
+4.	else
+5.	fib
+6.	if
+7.	int
+8.	n
+9.	print
+10.	return
+11.	void
+12.	while
+13.	x

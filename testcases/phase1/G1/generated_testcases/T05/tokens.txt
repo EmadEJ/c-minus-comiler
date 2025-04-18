@@ -1,0 +1,5 @@
+1.	(KEYWORD, int) (ID, a) (SYMBOL, =) (SYMBOL, ;) 
+2.	(SYMBOL, =) (NUM, 3) (SYMBOL, ;) 
+3.	(ID, c) (SYMBOL, =) (NUM, 2) (NUM, 4) (SYMBOL, ;) 
+4.	(ID, d) (SYMBOL, =) (NUM, 5) (SYMBOL, ;) 
+5.	(ID, e) (SYMBOL, =) (NUM, 6) (SYMBOL, ;) 

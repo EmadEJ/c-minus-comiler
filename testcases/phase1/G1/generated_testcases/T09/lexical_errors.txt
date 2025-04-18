@@ -1,0 +1,6 @@
+1.	(1b, Invalid number) 
+2.	(*#, Invalid input) 
+3.	(/$, Invalid input) 
+4.	(=?, Invalid input) 
+5.	(*/, Unmatched comment) 
+6.	(/* open..., Unclosed comment) 

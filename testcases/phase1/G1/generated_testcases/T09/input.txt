@@ -1,0 +1,7 @@
+int a=1b2;
+x=*#5;
+y=/$6;
+z=?3;
+*/
+ /* open error haha meow
+still

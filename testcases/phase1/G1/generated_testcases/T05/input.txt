@@ -1,0 +1,7 @@
+int a = 45z;
+b? = 3;
+c = 2 *? 4;
+d = /$5;
+e = 6; */
+ /* open comment
+still inside

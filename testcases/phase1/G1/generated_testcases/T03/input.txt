@@ -1,0 +1,13 @@
+/* header */
+void main(void){
+int count=0;
+int limit = 10;
+while(count < limit){
+  count = count + 1;
+  if(count==5){
+    break;
+  }
+  x = *#count;
+  y=/$2;
+}
+ /* unterminated

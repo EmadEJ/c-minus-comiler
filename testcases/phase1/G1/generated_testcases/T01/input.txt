@@ -1,0 +1,11 @@
+void factorial ( void ) {
+  int i = 1;
+  int n = 5;
+  int res = 1;
+  while ( i < n ) {
+    res = res * i;
+    i = i + 1;
+    /* loop done */
+  }
+  return;
+}

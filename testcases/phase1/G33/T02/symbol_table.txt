@@ -1,0 +1,14 @@
+1.	DpKhar
+2.	DpMog
+3.	a
+4.	break
+5.	count
+6.	else
+7.	if
+8.	int
+9.	non
+10.	result
+11.	return
+12.	valid
+13.	void
+14.	while

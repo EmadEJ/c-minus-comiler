@@ -1,0 +1,12 @@
+/*
+ * Test Case Description:
+ * Tests detection of an unterminated comment followed by more code (tests error recovery).
+ */
+int main(void) {
+    /* Start of an unclosed comment.
+    int x = 5;
+    return x;
+    /* This code should ideally be reachable if error recovery works well */
+    int y = 10;
+    return y;
+}

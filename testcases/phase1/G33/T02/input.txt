@@ -1,0 +1,15 @@
+int count;
+int result[50];
+int DpMog[93$];
+
+int DpKhar(int a, int result[#]) {
+    	count =## count + 1;
+	DpMog[a] = DpMog[a-1] + result[2$];
+	if (a === 2){
+	return count;
+	}
+else{
+	return -1;
+/return non valid*/
+}
+}
