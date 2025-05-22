@@ -1,8 +1,7 @@
-void main1() { int a = 10; a = a + 5; }
+void main() {
+    int a = 10;
+    a = a @ 5;  // Invalid character '@' 
+    a = 1b
+    if (10 > a): /*invalid condition */
 
-void main2() {
-    /* This is a comment
-    /* Nested comment */
-    a = a + 10;
-    /* second comment
-
+identifierAtEnd
