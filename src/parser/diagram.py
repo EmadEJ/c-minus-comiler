@@ -56,7 +56,7 @@ class Diagram:
     
     def add_rule(self, rule: list):
         if len(rule) == 0:
-            self.states[0].add_transition(Transition(True, 1, EPS, None))
+            self.states[0].add_transition(Transition(True, 1, ("EPS", ""), None))
             return
         
         cur_state = 0
