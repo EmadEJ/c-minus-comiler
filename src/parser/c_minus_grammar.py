@@ -1,7 +1,7 @@
 start_nonterminal = "Program"
 
 c_minus_grammar = {
-    "Program": [["DeclarationList"]],
+    "Program": [["DeclarationList", '$']],
     "DeclarationList": [["Declaration", "DeclarationList"], []],
     "Declaration": [["DeclarationInitial", "DeclarationPrime"]],
     "DeclarationInitial": [["TypeSpecifier", "ID"]],

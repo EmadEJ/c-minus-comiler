@@ -42,7 +42,6 @@ class Scanner:
                     self.reader.unread_char()
                     if char != "":  # because EoF is empty and we don't need to go back
                         token = token[:-1]
-
                 if cur_state.final_type in token_types.ERRORS:
                     self.add_error(self.reader.line_number, (token, cur_state.final_type))
 

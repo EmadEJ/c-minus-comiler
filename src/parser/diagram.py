@@ -11,6 +11,8 @@ def get_token(sym):
         return (token_types.NUMBER, None)
     if sym == "ID":
         return (token_types.ID, None)
+    if sym == "$":
+        return (token_types.EOF, '$')
     
     print(sym)
     assert()
