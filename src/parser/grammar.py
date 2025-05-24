@@ -1,5 +1,6 @@
 from parser.diagram import Diagram
-from parser.c_minus_grammar import c_minus_grammar, EPS
+from parser.c_minus_grammar import start_nonterminal, c_minus_grammar, EPS
+
 
 class Grammar:
     
@@ -14,8 +15,11 @@ class Grammar:
                         self.terminals.add(sym)
         self.first, self.follow, self.predict = self.prep(self.grammar, self.nonterminals, self.terminals)
         
+        self.start_nontermibnal = start_nonterminal
+        
     def prep(self, grammar, nonterminals, terminals):
         
+
         FIRST = {nt: set() for nt in nonterminals}
         FOLLOW = {nt: set() for nt in nonterminals}
 
@@ -86,7 +90,8 @@ class Grammar:
                 predict = set(first_alpha)
                 if contains_epsilon:
                     predict |= FOLLOW[nt]
-                PREDICT[nt][' '.join(prod)] = predict
+                PREDICT[nt][prod[0] if prod else ''] = predict
+                
         
         return FIRST, FOLLOW, PREDICT
     

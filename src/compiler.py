@@ -1,5 +1,7 @@
 from scanner.scanner import Scanner
 from parser.grammar import Grammar
+from parser.parser import Parser
+
 
 # G6
 # Emad Emamjomeh - 400108774
@@ -10,4 +12,8 @@ scanner = Scanner("input.txt")
 # scanner.save("tokens.txt", "lexical_errors.txt", "symbol_table.txt")
 grammar = Grammar()
 
-grammar.display()
+# grammar.display()
+
+parser = Parser(scanner)
+parser.proc()
+

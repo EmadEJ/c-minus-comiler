@@ -1,3 +1,5 @@
+start_nonterminal = "Program"
+
 c_minus_grammar = {
     "Program": [["DeclarationList"]],
     "DeclarationList": [["Declaration", "DeclarationList"], []],
