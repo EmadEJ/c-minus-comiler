@@ -40,7 +40,6 @@ class Parser:
             chosen_transition = None
             for tr in transitions:
                 if tr.isTerminal:
-                    mismatch_exp_lexm = tr.terminal
                     if tr.terminal[0] == 'EPS':
                         driven = predict['']
                         if self.is_token_in(self.lookahead, driven) or current_state_number > 0:
@@ -73,74 +72,6 @@ class Parser:
                     self.next_lookahead()
                 
             else:
-                break
-
-
-
-
-
-        while (current_state_number != 1):
-            current_state = states[current_state_number]
-            transitions = current_state.transitions
-
-            chosen_transition = None
-            mismatch = False
-            mismatch_exp_lexm = None
-            exp_tr = None
-            for tr in transitions:
-                exp_tr = tr
-                if tr.isTerminal:
-                    mismatch_exp_lexm = tr.terminal
-                    if tr.terminal[0] == 'EPS':
-                        driven = predict['']
-                        if self.is_token_in(self.lookahead, driven) or current_state_number > 0:
-                            chosen_transition = tr
-                            break
-                    elif current_state_number == 0:
-                        if self.is_equal_token(self.lookahead, tr.terminal):
-                            chosen_transition = tr
-                            break
-                    else:
-                        if self.is_equal_token(self.lookahead, tr.terminal):
-                            chosen_transition = tr
-                            break
-                        else:
-                            mismatch = True
-                            break
-
-                else:
-                    if current_state_number == 0:
-                        driven = predict[tr.nonterminal]
-
-                        if self.is_token_in(self.lookahead, driven):
-                            chosen_transition = tr
-                            break
-                    else:
-                        chosen_transition = tr
-                        break
-            if chosen_transition == None:
-                
-                line_num = self.scanner.reader.line_number
-                 
-                print(mismatch_exp_lexm)
-
-                if (mismatch_exp_lexm[0] == 'EPS'):
-
-                    current_state_number = exp_tr.next_state
-
-                if mismatch:
-                    self.add_error(f"#{line_num} : syntax error, missing {self.leximer_expected(mismatch_exp_lexm)}")
-                
-                elif self.is_token_in(self.lookahead, follow):
-                    self.add_error(f"#{line_num} : syntax error, missing {diagram.name}")
-                    return root, True, True
-                else:
-                    self.add_error(f"#{line_num} : syntax error, illegal {self.leximer_expected(mismatch_exp_lexm)}")
-                    self.next_lookahead()
-                current_state_number = exp_tr.next_state
-
-                
-            else:
                 next_state = tr.next_state
                 if tr.isTerminal:
                     if tr.terminal[0] == 'EPS':
@@ -155,8 +86,44 @@ class Parser:
                     if not not_exit:
                         return root, False, True
                 current_state_number = next_state
+                break
+
+
+
+
+
+        while (current_state_number != 1):
+            current_state = states[current_state_number]
+            transitions = current_state.transitions
+
+            chosen_transition = None
+
+            tr = transitions[0]
+
+            if tr.isTerminal:
+                current_state_number = tr.next_state
+                if tr.terminal[0] == 'EPS':
+                   Node("epsilon", parent=root)
+                        
+                else:
+                    if self.is_equal_token(self.lookahead, tr.terminal):
+                        Node(self.lookahead, parent=root)
+                        self.next_lookahead()
+                        
+                    else:
+                        line_num = self.scanner.reader.line_number
+                        self.add_error(f"#{line_num} : syntax error, missing {self.leximer_expected(tr.terminal)}")
+
+                        
+            else:
+                child, not_exit, add_child = self.get_parse_tree(self.diagrams[tr.nonterminal])
+                if add_child:
+                    child.parent = root
+                if not not_exit:
+                    return root, False, True
+                current_state_number = tr.next_state
+                    
             
-        
         # self.print_tree(root)
         return root, True, True
     

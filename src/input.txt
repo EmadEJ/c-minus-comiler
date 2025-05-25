@@ -1,26 +1,17 @@
 
-int sum(int arr[], int size) {
-    int total;
-    int i;
-    total = 0;
-    i = 0;
-    while (i < size {
-        total = total + arr[i]
-        i = i + 1;
-    }
-    return total
+int func(int a[]){
+    int b
+	return a[b+1] + b
 }
 
-void main(void) {
-    int values[3];
-    values[0] = 10;
-    values[1] = 20;
-    values[2] = 30;
-
-    int result;
-    result = sum(values, 3;
-    
-    if (result > 50)
-        break;
-    return;
+void main(void){
+	int a[10]
+	int b[10]
+	a[0] =1
+	if (a[0] < 5) {
+		b = fun(a)
+	}
+	else {
+		b = func(b)
+	}
 }
