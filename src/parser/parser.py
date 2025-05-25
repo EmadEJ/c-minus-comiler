@@ -111,6 +111,9 @@ class Parser:
                         self.next_lookahead()
                         
                     else:
+                        if self.leximer_expected(tr.terminal) == '$':
+                            Node('$',parent=root)
+                            return root, False, True
                         line_num = self.scanner.reader.line_number
                         self.add_error(f"#{line_num} : syntax error, missing {self.leximer_expected(tr.terminal)}")
 
