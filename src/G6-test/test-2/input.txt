@@ -1,7 +1,0 @@
-void main() {
-    int a = 10;
-    a = a @ 5;  // Invalid character '@' 
-    a = 1b
-    if (10 > a): /*invalid condition */
-
-identifierAtEnd

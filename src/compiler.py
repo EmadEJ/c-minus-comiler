@@ -9,7 +9,6 @@ from parser.parser import Parser
 
 scanner = Scanner("input.txt")
 # scanner.scan()
-# scanner.save("tokens.txt", "lexical_errors.txt", "symbol_table.txt")
 grammar = Grammar()
 
 # grammar.display()
@@ -17,3 +16,4 @@ grammar = Grammar()
 parser = Parser(scanner)
 parser.proc()
 
+# scanner.save("tokens.txt", "lexical_errors.txt", "symbol_table.txt")

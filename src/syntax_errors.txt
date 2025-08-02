@@ -1,18 +1,1 @@
-#5 : syntax error, illegal while
-#5 : syntax error, illegal (
-#5 : syntax error, illegal ID
-#5 : syntax error, missing ;
-#5 : syntax error, illegal )
-#7 : syntax error, illegal ID
-#7 : syntax error, illegal =
-#7 : syntax error, illegal ID
-#10 : syntax error, missing ReturnStmtPrime
-#16 : syntax error, illegal ID
-#16 : syntax error, illegal [
-#16 : syntax error, illegal NUM
-#16 : syntax error, missing ;
-#16 : syntax error, illegal ]
-#16 : syntax error, illegal =
-#20 : syntax error, illegal ;
-#21 : syntax error, illegal }
-#23 : syntax error, Unexpected EOF
+There is no syntax error.

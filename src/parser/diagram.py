@@ -14,7 +14,6 @@ def get_token(sym):
     if sym == "$":
         return (token_types.EOF, '$')
     
-    print(sym)
     assert()
     return None
 

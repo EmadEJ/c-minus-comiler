@@ -3,6 +3,8 @@ from anytree import Node, RenderTree
 import scanner.const as const
 import scanner.token_types as token_types
 import sys
+from IntermediateCodeGeneration.c_minus_actioned_grammar import actioned_grammar
+import IntermediateCodeGeneration.inter_code_gen
 
 ERROR_FILE_PATH = 'syntax_errors.txt'
 PARSE_PATH = 'parse_tree.txt'
@@ -13,9 +15,11 @@ class Parser:
         self.scanner = scanner
         self.grammar = Grammar()
         self.diagrams = self.grammar.get_diagrams()  # you can also get the diagrams one by one
+        self.icg = IntermediateCodeGeneration.inter_code_gen.ICG()
         self.errors = []
     
     def proc(self):
+        self.lookahead = None
         self.next_lookahead()
         start_nonterminal = self.grammar.start_nontermibnal
 
@@ -23,6 +27,7 @@ class Parser:
         
         parse_tree, _ , _= self.get_parse_tree(start_diagram)
         self.save(parse_tree)
+        self.icg.program_block.save()
 
     def get_parse_tree(self, diagram):
         root = Node(diagram.name)
@@ -73,14 +78,23 @@ class Parser:
                 
             else:
                 next_state = tr.next_state
+
+                actioned_rule = self.init_action_checker(diagram.name, tr) #this is for being able to check actioned_grammar 
+                actioned_rule = self.take_needed_action(actioned_rule, True) #action checking
+
                 if tr.isTerminal:
+
                     if tr.terminal[0] == 'EPS':
                         Node("epsilon", parent=root)
+                        actioned_rule = self.take_needed_action(actioned_rule) #action checking
                     else:
                         Node(self.lookahead, parent=root)
                         self.next_lookahead()
+                        actioned_rule = self.take_needed_action(actioned_rule) #action checking
                 else:
                     child, not_exit, add_child = self.get_parse_tree(self.diagrams[tr.nonterminal])
+                    actioned_rule = self.take_needed_action(actioned_rule) #action checking
+
                     if add_child:
                         child.parent = root
                     if not not_exit:
@@ -102,6 +116,7 @@ class Parser:
 
             if tr.isTerminal:
                 current_state_number = tr.next_state
+
                 if tr.terminal[0] == 'EPS':
                    Node("epsilon", parent=root)
                         
@@ -109,6 +124,7 @@ class Parser:
                     if self.is_equal_token(self.lookahead, tr.terminal):
                         Node(self.lookahead, parent=root)
                         self.next_lookahead()
+                        actioned_rule = self.take_needed_action(actioned_rule) #action checking
                         
                     else:
                         if self.leximer_expected(tr.terminal) == '$':
@@ -120,18 +136,21 @@ class Parser:
                         
             else:
                 child, not_exit, add_child = self.get_parse_tree(self.diagrams[tr.nonterminal])
+                actioned_rule = self.take_needed_action(actioned_rule) #action checking
                 if add_child:
                     child.parent = root
                 if not not_exit:
                     return root, False, True
                 current_state_number = tr.next_state
-                    
             
-        # self.print_tree(root)
+        actioned_rule = self.take_needed_action(actioned_rule, True) #action checking
+        if (actioned_rule != None and actioned_rule != []):
+            print(actioned_rule)
         return root, True, True
     
 
     def next_lookahead(self):
+        self.last_token = self.lookahead
         self.lookahead = self.scanner.get_next_token()
                 
 
@@ -213,7 +232,50 @@ class Parser:
                 return token_types.NUMBER
             if toktype == token_types.ID:
                 return token_types.ID
+            if toktype == "EPS":
+                return "EPS"
             if toktype == token_types.EOF:
                 return "$"
         else:
             return token
+
+    def init_action_checker(self, name, first_transition): #do not support action at the beginning
+        actioned_rules = actioned_grammar[name] 
+
+        if first_transition.isTerminal:
+            x = first_transition.terminal
+        else:
+            x = first_transition.nonterminal
+        x = self.leximer_expected(x)
+        
+        actioned_rule = None
+        if x == 'EPS':
+            return
+        for rule in actioned_rules:
+            if len(rule) == 0:
+                continue
+            if rule[0] == x:
+                actioned_rule = rule
+                break
+        return actioned_rule
+        
+
+
+    def take_needed_action(self, actioned_rule, only_remove_action = False): #action checking
+        if actioned_rule == None or len(actioned_rule) == 0:
+            return 
+        if not only_remove_action:
+            actioned_rule = actioned_rule[1:]
+        if actioned_rule == []:
+            return []
+        s = actioned_rule[0]
+        if s == "":
+            return actioned_rule
+        if s[0] == "#":
+            actioned_rule = actioned_rule[1:]
+            action = s[1:]
+            # print(f"DEBUG: Action '{action}' being called with lookahead: {self.last_token}")
+            self.icg.take_action(action, self.last_token[1])
+        return actioned_rule
+        
+        

@@ -1,8 +1,0 @@
-void main1() { int a = 10; a = a + 5; }
-
-void main2() {
-    /* This is a comment
-    /* Nested comment */
-    a = a + 10;
-    /* second comment
-
