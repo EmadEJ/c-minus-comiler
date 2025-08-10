@@ -84,6 +84,17 @@ class ICG:
                 address = str(self.env.get_address(input_str))
                 if not self.no_push:
                     self.semantic_stack.append(address)
+            
+            case "LIST_ACC":
+                top = self.sp()
+                index_addr_str = self.semantic_stack[top]
+                list_addr_str = self.semantic_stack[top-1]
+                tmp_addr = str(self.env.temp_address())
+                self.program_block.new_command("MULT", index_addr_str, "#4", tmp_addr) # tmp <- index * 4
+                result_addr = str(self.env.temp_address())
+                self.program_block.new_command("ADD",  list_addr_str, tmp_addr, result_addr) # result <- list_addr + index * 4
+                self.pop(2)
+                self.semantic_stack.append(result_addr)
 
             case "IMM":
                 self.semantic_stack.append("#" + input_str)
