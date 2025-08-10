@@ -1,3 +1,7 @@
 void main(void) {
-    i = i + (10 < 20) * i - - i ; 
+  int buffer[20];
+  int i;
+  i = 2;
+  buffer[0] = 100;
+  buffer[i] = buffer[0] * 3;
 }

@@ -31,7 +31,6 @@ class Parser:
 
     def get_parse_tree(self, diagram):
         root = Node(diagram.name)
-
         
         predict = diagram.predict
         follow = diagram.follow
@@ -103,9 +102,6 @@ class Parser:
                 break
 
 
-
-
-
         while (current_state_number != 1):
             current_state = states[current_state_number]
             transitions = current_state.transitions
@@ -170,7 +166,6 @@ class Parser:
             if exptype == token_types.EOF:
                 return toktype == token_types.EOF
  
-        
         else:
             sym = expected_token
             toktype, lex = token
@@ -201,6 +196,7 @@ class Parser:
     def save(self, parse_tree):
         self.write_tree(parse_tree)
         self.write_errors()
+
     def write_tree(self, root):
         with open(PARSE_PATH, "w", encoding='utf-8') as parse_file:     
             for pre, fill, node in RenderTree(root):
@@ -212,6 +208,7 @@ class Parser:
                         name = "(" + str(name[0]) + ", " + str(name[1])+")"
                 parse_file.write("%s%s"%(pre, name))
                 parse_file.write("\n")
+
     def write_errors(self):
         with open(ERROR_FILE_PATH, "w", encoding='utf-8') as er_file:
             if len(self.errors) == 0:
@@ -260,7 +257,6 @@ class Parser:
         return actioned_rule
         
 
-
     def take_needed_action(self, actioned_rule, only_remove_action = False): #action checking
         if actioned_rule == None or len(actioned_rule) == 0:
             return 
@@ -277,5 +273,3 @@ class Parser:
             # print(f"DEBUG: Action '{action}' being called with lookahead: {self.last_token}")
             self.icg.take_action(action, self.last_token[1])
         return actioned_rule
-        
-        

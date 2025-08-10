@@ -9,20 +9,36 @@ class ICG:
         self.env = self.Environment()
         self.program_block = self.ProgramBlock()
 
-        self.semantic_stack = [] 
-            # we put strings in the stack. regular numbers (e.g. 100) means direct addressing
-            # for immediate numbers we use #. for example #100.
-            # we also can write indirect addressing by putting @ behind numbers. 
+        self.semantic_stack = []
+        # we put strings in the stack. regular numbers (e.g. 100) means direct addressing
+        # for immediate numbers we use #. for example #100.
+        # we also can write indirect addressing by putting @ behind numbers.
+
+        # --- New attributes for advanced features ---
+        self.function_table = {}
+        self.break_stack = [] # A stack to manage break statements for nested loops
+        self.last_seen_id = None # To remember the name of the last ID encountered
+        self.current_function = None # To hold the name of the function being defined
+
+        # --- Flags ---
+        self.force_declare = False
+        self.no_push = False
+        self.function_scope = False
+        self.current_type = None
+
 
     def take_action(self, action, input_str = None):
+        #=====================================================#
+        #                Core Expression Actions              #
+        #=====================================================#
         match action:
-            case "ASSIGN": 
-                # arg2 = arg1
+            case "ASSIGN":
                 top = self.sp()
                 arg1 = self.semantic_stack[top]
                 arg2 = self.semantic_stack[top-1]
                 self.program_block.new_command("ASSIGN", arg1, arg2)
                 self.pop(2)
+                self.semantic_stack.append(arg1)
 
             case "OPERATE":
                 top = self.sp()
@@ -32,41 +48,14 @@ class ICG:
                 result_addr = str(self.env.temp_address())
 
                 match symb:
-                    case "+":
-                        command_type = "ADD"
-                    case "-":
-                        command_type = "SUB"
-                    case "*":
-                        command_type = "MULT"
-                    case _:
-                        raise Exception(f"{symb} was not a operator")
-                
+                    case "+": command_type = "ADD"
+                    case "-": command_type = "SUB"
+                    case "*": command_type = "MULT"
+                    case _: raise Exception(f"{symb} was not a operator")
+
                 self.program_block.new_command(command_type, arg1, arg2, result_addr)
                 self.pop(3)
                 self.semantic_stack.append(result_addr)
-
-            
-            case "PID":
-                address = str(self.env.get_address(input_str))
-                self.semantic_stack.append(address)
-
-            case "LIST_ACC":
-                top = self.sp()
-                index_addr_str = self.semantic_stack[top]
-                list_addr_str = self.semantic_stack[top-1]
-                tmp_addr = str(self.env.temp_address())
-                self.program_block.new_command("MULT", index_addr_str, "#4", tmp_addr) # tmp <- index * 4
-                result_addr = str(self.env.temp_address())
-                self.program_block.new_command("ADD",  list_addr_str, tmp_addr, result_addr) # result <- list_addr + index * 4
-                self.pop(2)
-                self.semantic_stack.append(result_addr)
-                
-            case "IMM": # maybe this would result in error. then get a temp address and put number in the address and push the address
-                immediate_str = "#" + input_str
-                self.semantic_stack.append(immediate_str) 
-
-            case "SYMB":
-                self.semantic_stack.append(input_str)
 
             case "COMPARE":
                 top = self.sp()
@@ -76,87 +65,282 @@ class ICG:
                 result_addr = str(self.env.temp_address())
 
                 match symb:
-                    case "==":
-                        command_type = "EQ"
-                    case "<":
-                        command_type = "LT"
-                    case _:
-                        raise Exception(f"{symb} was not a relop")
+                    case "==": command_type = "EQ"
+                    case "<": command_type = "LT"
+                    case _: raise Exception(f"{symb} was not a relop")
 
                 self.program_block.new_command(command_type, arg1, arg2, result_addr)
-
                 self.pop(3)
                 self.semantic_stack.append(result_addr)
 
             case "NEG":
-                top = self.sp()
-                arg = self.semantic_stack[top]
+                arg = self.semantic_stack.pop()
                 result_addr = str(self.env.temp_address())
-                self.program_block.new_command("SUB", "#0", arg, result_addr) #negating
-                self.pop()
+                self.program_block.new_command("SUB", "#0", arg, result_addr)
                 self.semantic_stack.append(result_addr)
 
-    
+            case "PID":
+                self.last_seen_id = input_str
+                address = str(self.env.get_address(input_str))
+                if not self.no_push:
+                    self.semantic_stack.append(address)
+
+            case "IMM":
+                self.semantic_stack.append("#" + input_str)
+
+            case "SYMB":
+                self.semantic_stack.append(input_str)
+
+            case "POP":
+                self.pop()
+
+            #=====================================================#
+            #           Declaration and Type Actions              #
+            #=====================================================#
+            case "SAVE_TYPE":
+                self.current_type = input_str
+
+            case "VOID_CHECK":
+                if input_str == "void":
+                    self.current_type = "void"
+
+            case "VOID_CHECK_THROW":
+                if self.current_type == "void":
+                    # In a real compiler, this would remove the symbol and raise a semantic error.
+                    # print(f"Error: Variable '{self.last_seen_id}' cannot be of type void.")
+                    pass
+
+            case "SET_FORCE_DECLARE":
+                self.force_declare = True
+
+            case "UNSET_FORCE_DECLARE":
+                self.force_declare = False
+
+            case "START_NO_PUSH" | "END_NO_PUSH":
+                # These flags are used by the parser to control stack pushes during declaration.
+                pass
+            
+            case "PNUM":
+                self.semantic_stack.append(f"#{input_str}")
+
+            case "DECLARE_ARRAY":
+                size_str = self.semantic_stack.pop()
+                size = int(size_str[1:])
+                if size > 1:
+                    self.env.last_address += (size - 1) * INT_SIZE
+
+            case "ARRAY_PARAM":
+                # This would mark the last parameter as an array type in a full symbol table.
+                if self.current_function and self.function_table[self.current_function]['params']:
+                    self.function_table[self.current_function]['params'][-1]['is_array'] = True
+
+            #=====================================================#
+            #              Scope Management Actions               #
+            #=====================================================#
+            case "OPEN_SCOPE":
+                self.env.open_scope()
+
+            case "CLOSE_SCOPE":
+                self.env.close_scope()
+
+            #=====================================================#
+            #            Function Definition & Calls              #
+            #=====================================================#
+            case "DECLARE_FUN":
+                self.current_function = self.last_seen_id
+                # Associate the function name with its starting line number
+                # and initialize its parameter list.
+                self.function_table[self.current_function] = {
+                    'address': self.program_block.get_line_number(),
+                    'params': []
+                }
+                # The address of the function itself (pushed by #PID) is on the stack.
+                # Assign the current line number to it, so jumps to the function work.
+                func_var_addr = self.semantic_stack.pop()
+                self.program_block.new_command("ASSIGN", f"#{self.program_block.get_line_number()}", func_var_addr)
+
+            case "SET_FUNCTION_SCOPE":
+                self.function_scope = True
+
+            case "POP_PARAM":
+                # In a simple model, parameters are treated like local variables.
+                # Their addresses are already allocated. We just record them.
+                param_addr = self.semantic_stack.pop()
+                if self.current_function:
+                    self.function_table[self.current_function]['params'].append({
+                        'name': self.last_seen_id,
+                        'addr': param_addr,
+                        'is_array': False
+                    })
+
+            case "SET_RETURN_VALUE":
+                # Assigns the result of an expression to a conventional return value address (e.g., address 0).
+                return_val = self.semantic_stack.pop()
+                self.program_block.new_command("ASSIGN", return_val, "0")
+
+            case "JUMP_BACK":
+                # Jumps to the return address, which we assume is stored at a conventional address (e.g., 4).
+                self.program_block.new_command("JP", "@4")
+                self.current_function = None
+                self.function_scope = False
+
+            case "ELSE_JUMP":
+                # This action is called after the "then" block.
+                # It back-patches the JPF from the start of the if, and creates a new
+                # placeholder for the unconditional JP to jump over the "else" block.
+                condition = self.semantic_stack.pop()
+                jpf_addr = self.semantic_stack.pop()
+
+                # Create placeholder for the unconditional jump over the else block.
+                jp_addr = self.program_block.get_line_number()
+                self.program_block.skip_line()
+                self.semantic_stack.append(jp_addr)
+
+                # Now that we know where the else block starts (the line after the new JP),
+                # we can back-patch the initial JPF.
+                self.program_block.write_command_at(jpf_addr, "JPF", condition, self.program_block.get_line_number())
+
+            case "END_IF_JUMP":
+                # This action is called after the "else" block.
+                # It back-patches the unconditional JP that sits between the "then" and "else" blocks.
+                jp_addr = self.semantic_stack.pop()
+                self.program_block.write_command_at(jp_addr, "JP", self.program_block.get_line_number())
+
+            # Note: A #CALL action would be needed here to handle the actual function call.
+            # Assuming it would be placed after the arguments in the grammar.
+            case "CALL":
+                 # This is a simplified call sequence.
+                 func_addr = self.semantic_stack.pop() # Address of the function to call.
+                 return_addr = self.program_block.get_line_number() + 2 # Address to return to.
+                 # 1. Save the return address to our conventional location (address 4).
+                 self.program_block.new_command("ASSIGN", f"#{return_addr}", "4")
+                 # 2. Jump to the function's code.
+                 self.program_block.new_command("JP", func_addr)
+                 # 3. After the call returns, move the return value (from address 0) to a new temporary.
+                 temp = self.env.temp_address()
+                 self.program_block.new_command("ASSIGN", "0", temp)
+                 self.semantic_stack.push(temp)
+
+
+            #=====================================================#
+            #              Control Flow Actions                   #
+            #=====================================================#
+            case "LABEL":
+                self.semantic_stack.append(self.program_block.get_line_number())
+
+            case "SAVE":
+                condition = self.semantic_stack.pop()
+                self.semantic_stack.append(self.program_block.get_line_number())
+                self.program_block.skip_line()
+                self.semantic_stack.append(condition)
+
+            case "WHILE":
+                condition = self.semantic_stack.pop()
+                jpf_addr = self.semantic_stack.pop()
+                label = self.semantic_stack.pop()
+                self.program_block.new_command("JP", label)
+                self.program_block.write_command_at(jpf_addr, "JPF", condition, self.program_block.get_line_number())
+
+            case "START_BREAK_SCOPE":
+                self.break_stack.append([])
+
+            case "BREAK":
+                if not self.break_stack:
+                    raise Exception("Break statement outside of a loop.")
+                # Save the location of the break's jump instruction for later patching.
+                break_addr = self.program_block.get_line_number()
+                self.break_stack[-1].append(break_addr)
+                self.program_block.skip_line()
+
+            case "HANDLE_BREAKS":
+                if not self.break_stack: return
+                # Get the exit point address (the line after the loop).
+                exit_point = self.program_block.get_line_number()
+                # Patch all break jumps for the most recent loop.
+                for break_addr in self.break_stack.pop():
+                    self.program_block.write_command_at(break_addr, "JP", exit_point)
+            
+            case "START_RHS" | "END_RHS":
+                # These are typically used for more advanced semantic analysis (e.g., type checking).
+                # For code generation purposes here, they are not needed.
+                pass
+
     def sp(self):
         return len(self.semantic_stack) - 1
-    def pop(self, number=1):
-        for i in range(number):
-            self.semantic_stack.pop()
 
-    class ProgramBlock: 
+    def pop(self, number=1):
+        for _ in range(number):
+            if self.semantic_stack:
+                self.semantic_stack.pop()
+
+    #=====================================================#
+    #                ProgramBlock Class                   #
+    #=====================================================#
+    class ProgramBlock:
         def __init__(self):
             self.blocks = []
 
         def new_command(self, command_type, arg1, arg2=None, arg3=None):
-            command = (command_type, arg1, arg2, arg3)
-            self.blocks.append(command)
+            self.blocks.append((command_type, arg1, arg2, arg3))
+
         def write_command_at(self, line_number, command_type, arg1, arg2=None, arg3=None):
-            command = (command_type, arg1, arg2, arg3)
-            self.blocks[line_number] = command
+            self.blocks[line_number] = (command_type, arg1, arg2, arg3)
+
         def skip_line(self, number=1):
-            for i in range(number):
-                self.blocks.append(None)
+            for _ in range(number): self.blocks.append(None)
+
         def get_line_number(self):
             return len(self.blocks)
+
         def save(self):
-            with open(ICG_OUTPUT_PATH, "w", encoding='utf-8') as icg_output_file:
-                line_number = 0 
-                for command in self.blocks:
-                    command_type, arg1, arg2, arg3 = command 
-                    if arg1 == None:
-                        icg_output_file.write(f"{line_number}\t({command_type}, , , )")
-                    elif arg2 == None:
-                        icg_output_file.write(f"{line_number}\t({command_type}, {arg1}, , )")
-                    elif arg3 == None:
-                        icg_output_file.write(f"{line_number}\t({command_type}, {arg1}, {arg2}, )")
-                    else:
-                        icg_output_file.write(f"{line_number}\t({command_type}, {arg1}, {arg2}, {arg3})")
-                    icg_output_file.write("\n")
-                    line_number += 1
-        
+            with open(ICG_OUTPUT_PATH, "w", encoding='utf-8') as f:
+                for i, command in enumerate(self.blocks):
+                    if command is None: continue
+                    ctype, a1, a2, a3 = command
+                    a1 = a1 if a1 is not None else ""
+                    a2 = a2 if a2 is not None else ""
+                    a3 = a3 if a3 is not None else ""
+                    f.write(f"{i}\t({ctype}, {a1}, {a2}, {a3})\n")
 
 
-    class Environment: 
-        # this class stores variable addresses and give new addresses
+    #=====================================================#
+    #                 Environment Class                   #
+    #=====================================================#
+    class Environment:
         def __init__(self):
-            self.env = {}
-            self.last_address = 100 
+            self.scopes = [{}]  # A stack of scope dictionaries
+            self.address_stack = [] # To save/restore memory counters across scopes
+            self.start_address = 100
+            self.last_address = self.start_address
+
+        def open_scope(self):
+            self.scopes.append({})
+            self.address_stack.append(self.last_address)
+
+        def close_scope(self):
+            if len(self.scopes) > 1:
+                self.scopes.pop()
+                self.last_address = self.address_stack.pop()
+
+        def _go_next_address(self):
+            self.last_address += INT_SIZE
 
         def new_reference(self, var_name):
-            self.env[var_name] = self.last_address
+            # Creates a new variable in the current (innermost) scope.
+            addr = self.last_address
+            self.scopes[-1][var_name] = addr
             self._go_next_address()
-            return self.env[var_name]
-        
+            return addr
+
+        def get_address(self, var_name):
+            # Searches for a variable from the innermost scope to the outermost (global) scope.
+            for scope in reversed(self.scopes):
+                if var_name in scope:
+                    return scope[var_name]
+            # If not found anywhere, it's a new declaration in the current scope.
+            return self.new_reference(var_name)
+
         def temp_address(self):
             tmpaddr = self.last_address
             self._go_next_address()
             return tmpaddr
-            
-        def get_address(self, var_name):
-            if var_name not in self.env:
-                self.new_reference(var_name)
-                # raise Exception(f"Variable {var_name} not found in environment")
-            return self.env[var_name]
-
-        def _go_next_address(self):
-            self.last_address += INT_SIZE
