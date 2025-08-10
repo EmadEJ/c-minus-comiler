@@ -1,7 +1,11 @@
-void main(void) {
-  int buffer[20];
-  int i;
-  i = 2;
-  buffer[0] = 100;
-  buffer[i] = buffer[0] * 3;
+int foo(int x){
+	int y;
+    y = 2 * x;
+}
+
+void main(void){
+	int i;
+	int j;
+	i= 3;
+	j= 8 ;
 }

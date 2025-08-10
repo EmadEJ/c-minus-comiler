@@ -270,6 +270,6 @@ class Parser:
         if s[0] == "#":
             actioned_rule = actioned_rule[1:]
             action = s[1:]
-            # print(f"DEBUG: Action '{action}' being called with lookahead: {self.last_token}")
+            print(f"DEBUG: Action '{action}' being called with lookahead: {self.last_token}")
             self.icg.take_action(action, self.last_token[1])
         return actioned_rule

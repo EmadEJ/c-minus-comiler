@@ -25,6 +25,10 @@ class ICG:
         self.no_push = False
         self.function_scope = False
         self.current_type = None
+        
+        self.main_is_found = False
+        # --- Reserve line 0 for the jump to main ---
+        self.program_block.skip_line()
 
 
     def take_action(self, action, input_str = None):
@@ -159,8 +163,13 @@ class ICG:
             #=====================================================#
             case "DECLARE_FUN":
                 self.current_function = self.last_seen_id
-                # Associate the function name with its starting line number
-                # and initialize its parameter list.
+                func_start_line = self.program_block.get_line_number()
+
+                if self.current_function == 'main' and not self.main_is_found:
+                    self.program_block.write_command_at(0, "JP", func_start_line)
+                    self.main_is_found = True
+
+                # Store function info.
                 self.function_table[self.current_function] = {
                     'address': self.program_block.get_line_number(),
                     'params': []
@@ -275,6 +284,7 @@ class ICG:
                 # These are typically used for more advanced semantic analysis (e.g., type checking).
                 # For code generation purposes here, they are not needed.
                 pass
+            
 
     def sp(self):
         return len(self.semantic_stack) - 1

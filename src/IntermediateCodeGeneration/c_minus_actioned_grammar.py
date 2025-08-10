@@ -4,10 +4,11 @@ actioned_grammar = { # currently doesn't support action at the very beginning. t
     "Program": [["DeclarationList", '$']],
     "DeclarationList": [["Declaration", "DeclarationList"], []],
     "Declaration": [["DeclarationInitial", "DeclarationPrime"]],
-    "DeclarationInitial": [["TypeSpecifier", "#SAVE_TYPE", "#SET_FORCE_DECLARE", "ID", "#START_NO_PUSH", "#PID", "#END_NO_PUSH", "#UNSET_FORCE_DECLARE"]],
+    # Note the changes here:
+    "DeclarationInitial": [["TypeSpecifier", "#SAVE_TYPE", "ID", "#PID"]],
     "DeclarationPrime": [["FunDeclarationPrime"], ["VarDeclarationPrime", "#ZERO_INIT", "#VOID_CHECK_THROW"]],
     "VarDeclarationPrime": [[";"], ["[", "NUM", "#PNUM", "]", "#DECLARE_ARRAY", ";"]],
-    "FunDeclarationPrime": [["(", "#DECL ARE_FUN", "#OPEN_SCOPE", "#SET_FUNCTION_SCOPE", "Params", ")", "CompoundStmt", "#JUMP_BACK"]],
+    "FunDeclarationPrime": [["(", "#DECLARE_FUN", "#OPEN_SCOPE", "#SET_FUNCTION_SCOPE", "Params", ")", "CompoundStmt", "#JUMP_BACK"]],
     "TypeSpecifier": [["int"], ["void", "#VOID_CHECK"]],
     "Params": [["int", "#SAVE_TYPE", "#SET_FORCE_DECLARE", "ID", "#PID", "#UNSET_FORCE_DECLARE", "ParamPrime", "#POP_PARAM", "ParamList"], ["void"]],
     "ParamList": [[",", "Param", "ParamList"], []],
