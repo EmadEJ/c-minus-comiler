@@ -264,12 +264,15 @@ class Parser:
             actioned_rule = actioned_rule[1:]
         if actioned_rule == []:
             return []
-        s = actioned_rule[0]
-        if s == "":
-            return actioned_rule
-        if s[0] == "#":
-            actioned_rule = actioned_rule[1:]
-            action = s[1:]
-            print(f"DEBUG: Action '{action}' being called with lookahead: {self.last_token}")
-            self.icg.take_action(action, self.last_token[1])
+        while len(actioned_rule) > 0:
+            s = actioned_rule[0]
+            if s == "":
+                return actioned_rule
+            if s[0] == "#":
+                actioned_rule = actioned_rule[1:]
+                action = s[1:]
+                # print(f"DEBUG: Action '{action}' being called with lookahead: {self.last_token}")
+                self.icg.take_action(action, self.last_token[1])
+            else:
+                break
         return actioned_rule

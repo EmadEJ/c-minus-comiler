@@ -1,1 +1,2 @@
-There is no syntax error.
+#1 : syntax error, illegal =
+#1 : syntax error, missing DeclarationPrime

@@ -4,6 +4,9 @@ ICG_OUTPUT_PATH = "./output.txt"
 
 INT_SIZE = 4 #4 Bytes
 
+RETURN_VALUE_ADDRESS = 0
+FUNCTION_RETURN_ADDRESS = 4
+
 class ICG:
     def __init__(self):
         self.env = self.Environment()
@@ -35,6 +38,7 @@ class ICG:
         #=====================================================#
         #                Core Expression Actions              #
         #=====================================================#
+        print(f"ACTION: {action:<20} STACK (before): {self.semantic_stack} SCOPES (before): {self.env.scopes}")
         match action:
             case "ASSIGN":
                 top = self.sp()
@@ -85,7 +89,7 @@ class ICG:
 
             case "PID":
                 self.last_seen_id = input_str
-                address = str(self.env.get_address(input_str))
+                address = str(self.env.get_address(input_str, self.force_declare))
                 if not self.no_push:
                     self.semantic_stack.append(address)
             
@@ -131,9 +135,11 @@ class ICG:
             case "UNSET_FORCE_DECLARE":
                 self.force_declare = False
 
-            case "START_NO_PUSH" | "END_NO_PUSH":
-                # These flags are used by the parser to control stack pushes during declaration.
-                pass
+            case "SET_NO_PUSH":
+                self.no_push = True
+            
+            case "UNSET_NO_PUSH":
+                self.no_push = False
             
             case "PNUM":
                 self.semantic_stack.append(f"#{input_str}")
@@ -153,10 +159,14 @@ class ICG:
             #              Scope Management Actions               #
             #=====================================================#
             case "OPEN_SCOPE":
-                self.env.open_scope()
+                if self.function_scope:
+                    self.function_scope = False
+                else:
+                    self.env.open_scope()
 
             case "CLOSE_SCOPE":
                 self.env.close_scope()
+                self.function_scope = False
 
             #=====================================================#
             #            Function Definition & Calls              #
@@ -176,7 +186,7 @@ class ICG:
                 }
                 # The address of the function itself (pushed by #PID) is on the stack.
                 # Assign the current line number to it, so jumps to the function work.
-                func_var_addr = self.semantic_stack.pop()
+                func_var_addr = self.env.get_address(self.last_seen_id)
                 self.program_block.new_command("ASSIGN", f"#{self.program_block.get_line_number()}", func_var_addr)
 
             case "SET_FUNCTION_SCOPE":
@@ -200,7 +210,7 @@ class ICG:
 
             case "JUMP_BACK":
                 # Jumps to the return address, which we assume is stored at a conventional address (e.g., 4).
-                self.program_block.new_command("JP", "@4")
+                self.program_block.new_command("JP", f"@{FUNCTION_RETURN_ADDRESS}")
                 self.current_function = None
                 self.function_scope = False
 
@@ -229,17 +239,17 @@ class ICG:
             # Note: A #CALL action would be needed here to handle the actual function call.
             # Assuming it would be placed after the arguments in the grammar.
             case "CALL":
-                 # This is a simplified call sequence.
-                 func_addr = self.semantic_stack.pop() # Address of the function to call.
-                 return_addr = self.program_block.get_line_number() + 2 # Address to return to.
-                 # 1. Save the return address to our conventional location (address 4).
-                 self.program_block.new_command("ASSIGN", f"#{return_addr}", "4")
-                 # 2. Jump to the function's code.
-                 self.program_block.new_command("JP", func_addr)
-                 # 3. After the call returns, move the return value (from address 0) to a new temporary.
-                 temp = self.env.temp_address()
-                 self.program_block.new_command("ASSIGN", "0", temp)
-                 self.semantic_stack.push(temp)
+                # This is a simplified call sequence.
+                func_addr = self.semantic_stack.pop() # Address of the function to call.
+                return_addr = self.program_block.get_line_number() + 2 # Address to return to.
+                # 1. Save the return address to our conventional location (address 4).
+                self.program_block.new_command("ASSIGN", f"#{return_addr}", f"{FUNCTION_RETURN_ADDRESS}")
+                # 2. Jump to the function's code.
+                self.program_block.new_command("JP", func_addr)
+                # 3. After the call returns, move the return value (from address 0) to a new temporary.
+                temp = self.env.temp_address()
+                self.program_block.new_command("ASSIGN", f"{RETURN_VALUE_ADDRESS}", temp)
+                self.semantic_stack.push(temp)
 
 
             #=====================================================#
@@ -335,6 +345,7 @@ class ICG:
             self.last_address = self.start_address
 
         def open_scope(self):
+            print("Here!")
             self.scopes.append({})
             self.address_stack.append(self.last_address)
 
@@ -353,13 +364,28 @@ class ICG:
             self._go_next_address()
             return addr
 
-        def get_address(self, var_name):
-            # Searches for a variable from the innermost scope to the outermost (global) scope.
-            for scope in reversed(self.scopes):
-                if var_name in scope:
-                    return scope[var_name]
-            # If not found anywhere, it's a new declaration in the current scope.
-            return self.new_reference(var_name)
+        def get_address(self, var_name, force_declare=False):
+            if force_declare:
+                # --- Declaration Logic ---
+                # We are declaring a new variable. Only check the current scope for redeclaration.
+                current_scope = self.scopes[-1]
+                if var_name in current_scope:
+                    # This is a semantic error: "Variable 'x' redeclared in the same scope."
+                    # For now, we'll just return its address.
+                    return current_scope[var_name]
+                else:
+                    # It's a new variable in this scope. Create it.
+                    return self.new_reference(var_name)
+            else:
+                # --- Lookup Logic ---
+                # We are using an existing variable. Search from the innermost scope outwards.
+                for scope in reversed(self.scopes):
+                    if var_name in scope:
+                        return scope[var_name]
+                
+                # This is a semantic error: "Undeclared variable 'x'."
+                # To prevent a crash, we'll create it, but a real compiler would raise an error.
+                return self.new_reference(var_name)
 
         def temp_address(self):
             tmpaddr = self.last_address
