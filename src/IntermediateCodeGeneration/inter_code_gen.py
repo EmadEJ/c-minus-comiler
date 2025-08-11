@@ -366,12 +366,12 @@ class ICG:
 
         def open_scope(self):
             self.scopes.append({})
-            self.address_stack.append(self.last_address)
+            # self.address_stack.append(self.last_address)
 
         def close_scope(self):
             if len(self.scopes) > 1:
                 self.scopes.pop()
-                self.last_address = self.address_stack.pop()
+                # self.last_address = self.address_stack.pop()
 
         def _go_next_address(self):
             self.last_address += INT_SIZE
