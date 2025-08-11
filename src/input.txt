@@ -1,23 +1,19 @@
-int x; /* Global x, should be at address 100. */
+/* sample 1 */
 
-int test(int x) { /* Parameter x (shadows global x). */
-    int y;   /* Function-level local y. */
-    y = 20;
-
-    if (y < 10) {
-        int x;
-        x= 5; /* Nested-block-level x (shadows parameter x). */
-        y = y + x; /* Uses inner x. y should become 20 + 5 = 25. */
-    }
-    
-    /* Inner x (with value 5) is now out of scope. */
-    /* "x" now refers to the parameter again. */
-    x = y + x; /* Uses parameter x. If called with 10, x becomes 25 + 10 = 35. */
-    return x;
+int func(int a){
+	int result;
+	if (a < 2){
+		result = a;
+	} else {
+		result = (a - 2) + (a + 1);
+	}
+	output(result);
+	return result;
 }
 
-void main(void){
-    int z;
-    z = 10;
-    output(z); 
+void main(void) {
+    int a;
+    a = 5;
+    a = func(a);
+    output(a);
 }

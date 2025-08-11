@@ -22,7 +22,7 @@ class ICG:
         self.break_stack = [] # A stack to manage break statements for nested loops
         self.last_seen_id = None # To remember the name of the last ID encountered
         self.current_function = None # To hold the name of the function being defined
-
+        self.call_stack = [] # A stack to save functions to call (haven't call yet, in the middle of its args)  
         # --- Flags ---
         self.force_declare = False
         self.no_push = False
@@ -33,6 +33,8 @@ class ICG:
         self.main_is_found = False
         # --- Reserve line 0 for the jump to main ---
         self.program_block.skip_line()
+
+        self.generate_output_func();
 
 
     def take_action(self, action, input_str = None):
@@ -99,6 +101,11 @@ class ICG:
                 # If it's not 'output', proceed with the normal PID logic.
                 self.last_seen_id = input_str
                 address = str(self.env.get_address(input_str, self.force_declare))
+
+                if input_str in self.function_table: # is a function
+                    function_description = self.function_table[input_str]
+                    self.call_stack.append(function_description) # append this function to call it after arguments are ready
+
                 if not self.no_push:
                     self.semantic_stack.append(address)
             
@@ -259,6 +266,19 @@ class ICG:
             # Note: A #CALL action would be needed here to handle the actual function call.
             # Assuming it would be placed after the arguments in the grammar.
             case "CALL":
+                if self.is_output_call:
+                    return
+                func_description = self.call_stack.pop()
+                func_params = func_description.get("params", [])
+
+                while func_params != []:
+                    param = func_params.pop()
+                    param_addr = param["addr"]
+                    param_input = self.semantic_stack.pop()
+                    self.program_block.new_command("ASSIGN", param_input, param_addr) # TODO: what if its list
+
+
+
                 # This is a simplified call sequence.
                 func_addr = self.semantic_stack.pop() # Address of the function to call.
                 return_addr = self.program_block.get_line_number() + 2 # Address to return to.
@@ -269,7 +289,7 @@ class ICG:
                 # 3. After the call returns, move the return value (from address 0) to a new temporary.
                 temp = self.env.temp_address()
                 self.program_block.new_command("ASSIGN", f"{RETURN_VALUE_ADDRESS}", temp)
-                self.semantic_stack.push(temp)
+                self.semantic_stack.append(temp)
 
 
             #=====================================================#
@@ -324,6 +344,9 @@ class ICG:
             if self.semantic_stack:
                 self.semantic_stack.pop()
 
+    def generate_output_func(self):
+        pass
+
     #=====================================================#
     #                ProgramBlock Class                   #
     #=====================================================#
@@ -352,6 +375,8 @@ class ICG:
                     a2 = a2 if a2 is not None else ""
                     a3 = a3 if a3 is not None else ""
                     f.write(f"{i}\t({ctype}, {a1}, {a2}, {a3})\n")
+
+
 
 
     #=====================================================#
@@ -410,3 +435,4 @@ class ICG:
             tmpaddr = self.last_address
             self._go_next_address()
             return tmpaddr
+        

@@ -1,1 +1,1 @@
-#15 : syntax error, missing else
+There is no syntax error.
