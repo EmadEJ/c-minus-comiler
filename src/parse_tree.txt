@@ -78,7 +78,17 @@ Program
 │       │               │       │       │           │   └── D
 │       │               │       │       │           │       └── epsilon
 │       │               │       │       │           └── C
-│       │               │       │       │               └── epsilon
+│       │               │       │       │               ├── Relop
+│       │               │       │       │               │   └── (SYMBOL, <)
+│       │               │       │       │               └── AdditiveExpression
+│       │               │       │       │                   ├── Term
+│       │               │       │       │                   │   ├── SignedFactor
+│       │               │       │       │                   │   │   └── Factor
+│       │               │       │       │                   │   │       └── (NUM, 10)
+│       │               │       │       │                   │   └── G
+│       │               │       │       │                   │       └── epsilon
+│       │               │       │       │                   └── D
+│       │               │       │       │                       └── epsilon
 │       │               │       │       ├── (SYMBOL, ))
 │       │               │       │       ├── Statement
 │       │               │       │       │   └── CompoundStmt

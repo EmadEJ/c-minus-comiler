@@ -4,7 +4,7 @@ int test(int x) { /* Parameter x (shadows global x). */
     int y;   /* Function-level local y. */
     y = 20;
 
-    if (y > 10) {
+    if (y < 10) {
         int x;
         x= 5; /* Nested-block-level x (shadows parameter x). */
         y = y + x; /* Uses inner x. y should become 20 + 5 = 25. */

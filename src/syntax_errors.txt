@@ -1,2 +1,1 @@
-#7 : syntax error, illegal NUM
 #15 : syntax error, missing else
