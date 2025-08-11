@@ -18,5 +18,6 @@ int test(int x) { /* Parameter x (shadows global x). */
 
 void main(void){
     int z;
-    z = test(10); /* Call test, passing 10 to the parameter x. */
+    z = 10;
+    output(z); 
 }

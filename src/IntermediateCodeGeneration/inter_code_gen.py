@@ -28,6 +28,7 @@ class ICG:
         self.no_push = False
         self.function_scope = False
         self.current_type = None
+        self.is_output_call = False
         
         self.main_is_found = False
         # --- Reserve line 0 for the jump to main ---
@@ -38,7 +39,7 @@ class ICG:
         #=====================================================#
         #                Core Expression Actions              #
         #=====================================================#
-        print(f"ACTION: {action:<20} STACK (before): {self.semantic_stack} SCOPES (before): {self.env.scopes}")
+        print(f"ACTION: {action:<20} STACK (before): {str(self.semantic_stack):<30} SCOPES: {self.env.scopes}")
         match action:
             case "ASSIGN":
                 top = self.sp()
@@ -88,6 +89,14 @@ class ICG:
                 self.semantic_stack.append(result_addr)
 
             case "PID":
+                # Check if the identifier is our special 'output' function.
+                if input_str == 'output':
+                    self.is_output_call = True
+                    # Do not get an address or push anything to the stack for 'output'.
+                    # Just set the flag and stop.
+                    return
+
+                # If it's not 'output', proceed with the normal PID logic.
                 self.last_seen_id = input_str
                 address = str(self.env.get_address(input_str, self.force_declare))
                 if not self.no_push:
@@ -111,7 +120,18 @@ class ICG:
                 self.semantic_stack.append(input_str)
 
             case "POP":
-                self.pop()
+                # Check if this POP is for our special 'output' call.
+                if self.is_output_call:
+                    # The argument's address/value is on the stack. Pop it.
+                    address_to_print = self.semantic_stack.pop()
+                    # Generate the PRINT command.
+                    self.program_block.new_command("PRINT", address_to_print)
+                    # Reset the flag for the next statement.
+                    self.is_output_call = False
+                else:
+                    # If it's not an output call, perform a normal pop for
+                    # any other expression whose value isn't used.
+                    self.pop()
 
             #=====================================================#
             #           Declaration and Type Actions              #
@@ -294,7 +314,7 @@ class ICG:
                 # These are typically used for more advanced semantic analysis (e.g., type checking).
                 # For code generation purposes here, they are not needed.
                 pass
-            
+
 
     def sp(self):
         return len(self.semantic_stack) - 1
