@@ -1,2 +1,2 @@
-#1 : syntax error, illegal =
-#1 : syntax error, missing DeclarationPrime
+#7 : syntax error, illegal NUM
+#15 : syntax error, missing else

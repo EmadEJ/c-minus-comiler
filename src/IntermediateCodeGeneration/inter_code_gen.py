@@ -345,7 +345,6 @@ class ICG:
             self.last_address = self.start_address
 
         def open_scope(self):
-            print("Here!")
             self.scopes.append({})
             self.address_stack.append(self.last_address)
 
