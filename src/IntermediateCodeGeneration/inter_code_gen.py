@@ -31,6 +31,7 @@ class ICG:
         self.current_type = None
         self.is_output_call = False
         self.first_func = True
+        self.array_param = False
         
         self.main_is_found = False
         # --- initialize addresses for functions ---
@@ -48,7 +49,7 @@ class ICG:
         #=====================================================#
         #                Core Expression Actions              #
         #=====================================================#
-        # print(f"ACTION: {action:<20} STACK (before): {str(self.semantic_stack):<30} SCOPES: {self.env.scopes}")
+        print(f"ACTION: {action:<20} STACK (before): {str(self.semantic_stack):<30} SCOPES: {self.env.scopes}\n{'#'*99}")
         match action:
             case "ASSIGN":
                 top = self.sp()
@@ -113,7 +114,7 @@ class ICG:
                     function_description = self.function_table[input_str]
                     self.call_stack.append(function_description) # append this function to call it after arguments are ready
 
-                if not self.no_push:
+                if not self.no_push or self.function_scope:
                     self.semantic_stack.append(address)
             
             case "LIST_ACC":
@@ -188,9 +189,7 @@ class ICG:
                     self.env.last_address += (size - 1) * INT_SIZE
 
             case "ARRAY_PARAM":
-                # This would mark the last parameter as an array type in a full symbol table.
-                if self.current_function and self.function_table[self.current_function]['params']:
-                    self.function_table[self.current_function]['params'][-1]['is_array'] = True
+                self.array_param = True
 
             #=====================================================#
             #              Scope Management Actions               #
@@ -241,8 +240,9 @@ class ICG:
                     self.function_table[self.current_function]['params'].append({
                         'name': self.last_seen_id,
                         'addr': param_addr,
-                        'is_array': False
+                        'is_array': self.array_param
                     })
+                    self.array_param = False
 
             case "SET_RETURN_VALUE":
                 # Assigns the result of an expression to a conventional return value address (e.g., address 0).
@@ -400,8 +400,6 @@ class ICG:
                     f.write(f"{i}\t({ctype}, {a1}, {a2}, {a3})\n")
 
 
-
-
     #=====================================================#
     #                 Environment Class                   #
     #=====================================================#
@@ -458,4 +456,3 @@ class ICG:
             tmpaddr = self.last_address
             self._go_next_address()
             return tmpaddr
-        
