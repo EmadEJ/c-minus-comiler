@@ -6,6 +6,7 @@ INT_SIZE = 4 #4 Bytes
 
 RETURN_VALUE_ADDRESS = 0
 FUNCTION_RETURN_ADDRESS = 4
+DEFAULT_RETURN_ADDRESS_LINE = 1 
 MAIN_JUMP_LINE = 2
 
 class ICG:
@@ -34,7 +35,9 @@ class ICG:
         self.main_is_found = False
         # --- initialize addresses for functions ---
         self.program_block.new_command("ASSIGN", "#0", f"{RETURN_VALUE_ADDRESS}")
-        self.program_block.new_command("ASSIGN", "#0", f"{FUNCTION_RETURN_ADDRESS}")
+        self.program_block.skip_line() #DEFAULT_RETURN_ADDRESS_LINE
+
+
         # --- Reserve line MAIN_JUMP_LINE for the jump to main ---
         self.program_block.skip_line()
 
@@ -45,7 +48,7 @@ class ICG:
         #=====================================================#
         #                Core Expression Actions              #
         #=====================================================#
-        print(f"ACTION: {action:<20} STACK (before): {str(self.semantic_stack):<30} SCOPES: {self.env.scopes}")
+        # print(f"ACTION: {action:<20} STACK (before): {str(self.semantic_stack):<30} SCOPES: {self.env.scopes}")
         match action:
             case "ASSIGN":
                 top = self.sp()
@@ -116,7 +119,7 @@ class ICG:
             case "LIST_ACC":
                 top = self.sp()
                 index_addr_str = self.semantic_stack[top]
-                list_addr_str = "#" + self.semantic_stack[top-1]
+                list_addr_str = self.semantic_stack[top-1]
                 tmp_addr = str(self.env.temp_address())
                 self.program_block.new_command("MULT", index_addr_str, "#4", tmp_addr) # tmp <- index * 4
                 result_addr = tmp_addr
@@ -178,6 +181,9 @@ class ICG:
             case "DECLARE_ARRAY":
                 size_str = self.semantic_stack.pop()
                 size = int(size_str[1:])
+                start_of_array = str(self.env.temp_address())
+                array_address = str(self.env.get_address(self.last_seen_id))                                    
+                self.program_block.new_command("ASSIGN", f"#{start_of_array}", array_address)
                 if size > 1:
                     self.env.last_address += (size - 1) * INT_SIZE
 
@@ -275,23 +281,26 @@ class ICG:
                 func_description = self.call_stack.pop()
                 func_params = func_description.get("params", [])
 
-                while func_params != []:
-                    param = func_params.pop()
+                param_index = len(func_params) - 1
+                while param_index >= 0:
+                    param = func_params[param_index]
                     param_addr = param["addr"]
                     param_input = self.semantic_stack.pop()
                     self.program_block.new_command("ASSIGN", param_input, param_addr) # TODO: what if its list
-
+                    param_index -= 1
 
 
                 # This is a simplified call sequence.
                 func_addr = self.semantic_stack.pop() # Address of the function to call.
+                func_line = func_description["address"]
                 return_addr = self.program_block.get_line_number() + 2 # Address to return to.
+                
                 # 1. Save the return address to our conventional location (address 4).
                 self.program_block.new_command("ASSIGN", f"#{return_addr}", f"{FUNCTION_RETURN_ADDRESS}")
                 # 2. Jump to the function's code.
-                self.program_block.new_command("JP", func_addr)
+                self.program_block.new_command("JP",func_line)
                 # 3. After the call returns, move the return value (from address 0) to a new temporary.
-                temp = self.env.temp_address()
+                temp = str(self.env.temp_address())
                 self.program_block.new_command("ASSIGN", f"{RETURN_VALUE_ADDRESS}", temp)
                 self.semantic_stack.append(temp)
 
@@ -338,6 +347,12 @@ class ICG:
                 # These are typically used for more advanced semantic analysis (e.g., type checking).
                 # For code generation purposes here, they are not needed.
                 pass
+            case "PROGRAM_END":
+                last_command, arg1,_,_ = self.program_block.blocks[-1]
+                if last_command == "JP" and arg1 == "@4":
+                    self.program_block.blocks.pop()
+                self.program_block.write_command_at(DEFAULT_RETURN_ADDRESS_LINE, "ASSIGN", f"#{self.program_block.get_line_number()}", FUNCTION_RETURN_ADDRESS)
+
 
 
     def sp(self):

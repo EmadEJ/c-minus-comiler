@@ -1,7 +1,7 @@
 start_nonterminal = "Program"
 
 actioned_grammar = { # currently doesn't support action at the very beginning. tell me if you need it Emad jan
-    "Program": [["DeclarationList", '$']],
+    "Program": [["DeclarationList" , "#PROGRAM_END", '$']],
     "DeclarationList": [["Declaration", "DeclarationList"], []],
     "Declaration": [["DeclarationInitial", "DeclarationPrime"]],
     # Note the changes here:
