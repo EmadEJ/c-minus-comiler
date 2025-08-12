@@ -8,7 +8,7 @@ actioned_grammar = { # currently doesn't support action at the very beginning. t
     "DeclarationInitial": [["TypeSpecifier", "#SAVE_TYPE", "#SET_FORCE_DECLARE", "ID", "#SET_NO_PUSH", "#PID", "#UNSET_NO_PUSH", "#UNSET_FORCE_DECLARE"]],
     "DeclarationPrime": [["FunDeclarationPrime"], ["VarDeclarationPrime", "#ZERO_INIT", "#VOID_CHECK_THROW"]],
     "VarDeclarationPrime": [[";"], ["[", "NUM", "#PNUM", "]", "#DECLARE_ARRAY", ";"]],
-    "FunDeclarationPrime": [["(", "#DECLARE_FUN", "#OPEN_SCOPE", "#SET_FUNCTION_SCOPE", "Params", ")", "CompoundStmt"]],
+    "FunDeclarationPrime": [["(", "#DECLARE_FUN", "#OPEN_SCOPE", "#SET_FUNCTION_SCOPE", "Params", ")", "CompoundStmt", "#JUMP_BACK"]],
     "TypeSpecifier": [["int"], ["void", "#VOID_CHECK"]],
     "Params": [["int", "#SAVE_TYPE", "#SET_FORCE_DECLARE", "ID", "#PID", "#UNSET_FORCE_DECLARE", "ParamPrime", "#POP_PARAM", "ParamList"], ["void"]],
     "ParamList": [[",", "Param", "ParamList"], []],
