@@ -6,6 +6,7 @@ INT_SIZE = 4 #4 Bytes
 
 RETURN_VALUE_ADDRESS = 0
 FUNCTION_RETURN_ADDRESS = 4
+MAIN_JUMP_LINE = 2
 
 class ICG:
     def __init__(self):
@@ -31,10 +32,13 @@ class ICG:
         self.is_output_call = False
         
         self.main_is_found = False
-        # --- Reserve line 0 for the jump to main ---
+        # --- initialize addresses for functions ---
+        self.program_block.new_command("ASSIGN", "#0", f"{RETURN_VALUE_ADDRESS}")
+        self.program_block.new_command("ASSIGN", "#0", f"{FUNCTION_RETURN_ADDRESS}")
+        # --- Reserve line MAIN_JUMP_LINE for the jump to main ---
         self.program_block.skip_line()
 
-        self.generate_output_func();
+        self.generate_output_func()
 
 
     def take_action(self, action, input_str = None):
@@ -203,7 +207,7 @@ class ICG:
                 func_start_line = self.program_block.get_line_number()
 
                 if self.current_function == 'main' and not self.main_is_found:
-                    self.program_block.write_command_at(0, "JP", func_start_line)
+                    self.program_block.write_command_at(MAIN_JUMP_LINE, "JP", func_start_line)
                     self.main_is_found = True
 
                 # Store function info.
