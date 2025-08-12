@@ -49,7 +49,7 @@ class ICG:
                 arg2 = self.semantic_stack[top-1]
                 self.program_block.new_command("ASSIGN", arg1, arg2)
                 self.pop(2)
-                self.semantic_stack.append(arg1)
+                self.semantic_stack.append(arg2)
 
             case "OPERATE":
                 top = self.sp()
@@ -112,13 +112,13 @@ class ICG:
             case "LIST_ACC":
                 top = self.sp()
                 index_addr_str = self.semantic_stack[top]
-                list_addr_str = self.semantic_stack[top-1]
+                list_addr_str = "#" + self.semantic_stack[top-1]
                 tmp_addr = str(self.env.temp_address())
                 self.program_block.new_command("MULT", index_addr_str, "#4", tmp_addr) # tmp <- index * 4
-                result_addr = str(self.env.temp_address())
+                result_addr = tmp_addr
                 self.program_block.new_command("ADD",  list_addr_str, tmp_addr, result_addr) # result <- list_addr + index * 4
                 self.pop(2)
-                self.semantic_stack.append(result_addr)
+                self.semantic_stack.append("@" + result_addr)
 
             case "IMM":
                 self.semantic_stack.append("#" + input_str)

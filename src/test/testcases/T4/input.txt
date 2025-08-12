@@ -1,0 +1,31 @@
+/*===  Sample 4  === */
+void printArray(int A[], int size)
+{
+    int i;
+    i = 0;
+    while ( i < size) {
+        output(A[i]);
+        i = i + 1;
+    }
+}
+
+void main(void)
+{
+    int arr[10];
+    int arrsize;
+    int i;
+    int j;
+    arrsize = 10;
+    i = 0;
+    while (i < arrsize) {
+        j = 0;
+        arr[i] = 2;
+        while (j < i) {
+            arr[i] = arr[i] * (0-2);
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+
+    printArray(arr, arrsize);
+}

@@ -1,19 +1,10 @@
-/* sample 1 */
-
-int func(int a){
-	int result;
-	if (a < 2){
-		result = a;
-	} else {
-		result = (a - 2) + (a + 1);
-	}
-	output(result);
-	return result;
+/*===  Sample 6  === */
+int func(int a1, int a2) {
+	return 0;
 }
 
-void main(void) {
-    int a;
-    a = 5;
-    a = func(a);
-    output(a);
+
+void main(void)
+{
+    int var;
 }

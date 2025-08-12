@@ -1,0 +1,16 @@
+void f(int a) {
+    int x;
+    x = a + 1;
+}
+
+void main(void) {
+    int i;
+    i = 0;
+    while (i < 10) {
+        output2ar = 0;
+        i = i + output2ar;
+    }
+    count = 0;
+    f(5, 4);
+    output(count);
+}

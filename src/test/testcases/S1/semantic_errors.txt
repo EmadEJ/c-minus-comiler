@@ -1,0 +1,5 @@
+#10 : Semantic Error! 'output2ar' is not defined.
+#11 : Semantic Error! 'output2ar' is not defined.
+#13 : Semantic Error! 'count' is not defined.
+#14 : Semantic Error! Mismatch in numbers of arguments of 'f'.
+#15 : Semantic Error! 'count' is not defined.

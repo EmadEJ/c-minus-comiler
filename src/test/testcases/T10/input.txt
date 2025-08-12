@@ -1,0 +1,48 @@
+/*==== Sample T10 ====*/
+int g(int x){
+	int res;
+	int j;
+	int k;
+	res = 0;
+	j = 0;
+	while (j < 2){
+		if (j == 1){
+			break;
+		} else{
+			k = 0;
+			while (k < x) {
+				res = res + (k + 1);
+				k = k + 1;
+			}
+			j = j + 1;
+		}
+	}
+	return res;
+}
+
+void f(int a, int c){
+	int b[6];
+	int i;
+	b[0] = a;
+	b[1] = c;
+	i = 2;
+	while (i < 20){
+		b[i] = b[i-1] + b[i-2];
+		output(b[i]);
+		if (i == 5){
+			break;
+		} else {
+			i = i + 1;
+		}
+	}
+	output(i);
+}
+
+void main(void) {
+    int x;
+    int y;
+    x = 1;
+    y = 2;
+    f(x, y);
+    output(g(y + 4));
+}

@@ -1,0 +1,19 @@
+/*==== Sample T7 ====*/
+int a;
+int b;
+
+void main(void) {
+    int c;
+    int d;
+    a = c = 2;
+    d = b = 4;
+    output(a);
+    output(b);
+    c = a * 17 < 15 + 3;
+    output(c);
+    output(d < 3);
+    output(d - 8 < 3);
+    output(1 * 2);
+    if (a == 2) output(c = 2);
+    else output(d = 4);
+}
