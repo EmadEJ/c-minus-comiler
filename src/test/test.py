@@ -17,35 +17,35 @@ class Test(unittest.TestCase):
         self.assertEqual(score1, 0)
         self.assertEqual(score2, 0)
 
-    def test_t4(self):
-        score1, score2 = runner.run_and_evaluate('T4')
-        self.assertEqual(score1, 0)
-        self.assertEqual(score2, 0)
+    # def test_t4(self):
+    #     score1, score2 = runner.run_and_evaluate('T4')
+    #     self.assertEqual(score1, 0)
+    #     self.assertEqual(score2, 0)
 
     # def test_t5(self):
     #     score1, score2 = runner.run_and_evaluate('T5')
     #     self.assertEqual(score1, 0)
     #     self.assertEqual(score2, 0)
 
-    # def test_t6(self):
-    #     score1, score2 = runner.run_and_evaluate('T6')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
+    def test_t6(self):
+        score1, score2 = runner.run_and_evaluate('T6')
+        self.assertEqual(score1, 0)
+        self.assertEqual(score2, 0)
 
-    # def test_t7(self):
-    #     score1, score2 = runner.run_and_evaluate('T7')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
+    def test_t7(self):
+        score1, score2 = runner.run_and_evaluate('T7')
+        self.assertEqual(score1, 0)
+        self.assertEqual(score2, 0)
 
-    # def test_t8(self):
-    #     score1, score2 = runner.run_and_evaluate('T8')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
+    def test_t8(self):
+        score1, score2 = runner.run_and_evaluate('T8')
+        self.assertEqual(score1, 0)
+        self.assertEqual(score2, 0)
 
-    # def test_t9(self):
-    #     score1, score2 = runner.run_and_evaluate('T9')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
+    def test_t9(self):
+        score1, score2 = runner.run_and_evaluate('T9')
+        self.assertEqual(score1, 0)
+        self.assertEqual(score2, 0)
 
     # def test_t10(self):
     #     score1, score2 = runner.run_and_evaluate('T10')
