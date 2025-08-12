@@ -12,7 +12,7 @@ actioned_grammar = { # currently doesn't support action at the very beginning. t
     "TypeSpecifier": [["int"], ["void", "#VOID_CHECK"]],
     "Params": [["int", "#SAVE_TYPE", "#SET_FORCE_DECLARE", "ID", "#PID", "#UNSET_FORCE_DECLARE", "ParamPrime", "#POP_PARAM", "ParamList"], ["void"]],
     "ParamList": [[",", "Param", "ParamList"], []],
-    "Param": [["DeclarationInitial", "ParamPrime", "#POP_PARAM"]],
+    "Param": [["DeclarationInitial", "ParamPrime"]],
     "ParamPrime": [["[", "]", "ARRAY_PARAM"], []],
     "CompoundStmt": [["{", "#OPEN_SCOPE", "DeclarationList", "StatementList", "#CLOSE_SCOPE", "}"]],
     "StatementList": [["Statement", "StatementList"], []],

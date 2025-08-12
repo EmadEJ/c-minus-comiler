@@ -1,7 +1,8 @@
 /*===  Sample 6  === */
-int func(int a1) {
+int func(int a1, int a2) {
 	int x;
     x = 10;
+    a1 = a2;
     return x;
 }
 
