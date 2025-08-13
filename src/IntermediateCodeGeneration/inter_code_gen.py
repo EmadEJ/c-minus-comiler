@@ -7,6 +7,7 @@ INT_SIZE = 4 #4 Bytes
 RETURN_VALUE_ADDRESS = 0
 FUNCTION_RETURN_ADDRESS = 4
 DEFAULT_RETURN_ADDRESS_LINE = 1 
+OUTPUT_VAR = "output_var"
 
 class ICG:
     def __init__(self):
@@ -29,7 +30,6 @@ class ICG:
         self.no_push = False
         self.function_scope = False
         self.current_type = None
-        self.is_output_call = False
         self.first_func = True
         self.array_param = False
         
@@ -38,18 +38,16 @@ class ICG:
         self.program_block.new_command("ASSIGN", "#0", f"{RETURN_VALUE_ADDRESS}")
         self.program_block.skip_line() #DEFAULT_RETURN_ADDRESS_LINE
 
-
+        self.output_return_address = self.env.temp_address()
         # --- Reserve line MAIN_JUMP_LINE for the jump to main ---
         # self.program_block.skip_line()
-
-        self.generate_output_func()
 
 
     def take_action(self, action, input_str = None):
         #=====================================================#
         #                Core Expression Actions              #
         #=====================================================#
-        print(f"ACTION: {action:<20} STACK (before): {str(self.semantic_stack):<30} SCOPES: {self.env.scopes}\n{'#'*99}")
+        # print(f"ACTION: {action:<20} STACK (before): {str(self.semantic_stack):<30} SCOPES: {self.env.scopes}\n{'#'*99}")
         match action:
             case "ASSIGN":
                 top = self.sp()
@@ -99,20 +97,12 @@ class ICG:
                 self.semantic_stack.append(result_addr)
 
             case "PID":
-                # Check if the identifier is our special 'output' function.
-                if input_str == 'output':
-                    self.is_output_call = True
-                    # Do not get an address or push anything to the stack for 'output'.
-                    # Just set the flag and stop.
-                    return
-
-                # If it's not 'output', proceed with the normal PID logic.
                 self.last_seen_id = input_str
                 address = str(self.env.get_address(input_str, self.force_declare))
 
                 if input_str in self.function_table: # is a function
                     function_description = self.function_table[input_str]
-                    self.call_stack.append(function_description) # append this function to call it after arguments are ready
+                    self.call_stack.append((input_str , function_description)) # append this function to call it after arguments are ready
 
                 if not self.no_push or self.function_scope:
                     self.semantic_stack.append(address)
@@ -135,18 +125,7 @@ class ICG:
                 self.semantic_stack.append(input_str)
 
             case "POP":
-                # Check if this POP is for our special 'output' call.
-                if self.is_output_call:
-                    # The argument's address/value is on the stack. Pop it.
-                    address_to_print = self.semantic_stack.pop()
-                    # Generate the PRINT command.
-                    self.program_block.new_command("PRINT", address_to_print)
-                    # Reset the flag for the next statement.
-                    self.is_output_call = False
-                else:
-                    # If it's not an output call, perform a normal pop for
-                    # any other expression whose value isn't used.
-                    self.pop()
+                self.pop()
 
             #=====================================================#
             #           Declaration and Type Actions              #
@@ -208,10 +187,11 @@ class ICG:
             #            Function Definition & Calls              #
             #=====================================================#
             case "DECLARE_FUN":
-                if self.first_func:
+                if self.first_func: 
                     self.main_jump_line = self.program_block.get_line_number()
                     self.program_block.skip_line()
                     self.first_func = False
+                    self.generate_output_func()
                 self.current_function = self.last_seen_id
                 func_start_line = self.program_block.get_line_number()
 
@@ -280,9 +260,7 @@ class ICG:
             # Note: A #CALL action would be needed here to handle the actual function call.
             # Assuming it would be placed after the arguments in the grammar.
             case "CALL":
-                if self.is_output_call:
-                    return
-                func_description = self.call_stack.pop()
+                func_name, func_description = self.call_stack.pop()
                 func_params = func_description.get("params", [])
 
                 param_index = len(func_params) - 1
@@ -300,7 +278,10 @@ class ICG:
                 return_addr = self.program_block.get_line_number() + 2 # Address to return to.
                 
                 # 1. Save the return address to our conventional location (address 4).
-                self.program_block.new_command("ASSIGN", f"#{return_addr}", f"{FUNCTION_RETURN_ADDRESS}")
+                if func_name == "output":
+                    self.program_block.new_command("ASSIGN", f"#{return_addr}", f"{self.output_return_address}")
+                else:
+                    self.program_block.new_command("ASSIGN", f"#{return_addr}", f"{FUNCTION_RETURN_ADDRESS}")
                 # 2. Jump to the function's code.
                 self.program_block.new_command("JP",func_line)
                 # 3. After the call returns, move the return value (from address 0) to a new temporary.
@@ -368,7 +349,29 @@ class ICG:
                 self.semantic_stack.pop()
 
     def generate_output_func(self):
-        pass
+        line = self.program_block.get_line_number()
+        self.function_table["output"] = {
+                'address': line,
+                'params': []
+            }
+        # The address of the function itself (pushed by #PID) is on the stack.
+        # Assign the current line number to it, so jumps to the function work.
+        func_var_addr = self.env.get_address("output", True)
+        self.program_block.new_command("ASSIGN", f"#{line}", func_var_addr)
+        self.env.open_scope()
+        var_addr = self.env.new_reference(OUTPUT_VAR)
+        self.function_table["output"]['params'].append({
+                        'name': OUTPUT_VAR,
+                        'addr': var_addr,
+                        'is_array': False
+                    })
+        self.env.close_scope()
+        self.program_block.new_command("PRINT", var_addr)
+        self.program_block.new_command("JP", f"@{self.output_return_address}")
+
+
+
+
 
     #=====================================================#
     #                ProgramBlock Class                   #
