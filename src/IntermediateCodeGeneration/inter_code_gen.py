@@ -397,10 +397,10 @@ class ICG:
                 for i, command in enumerate(self.blocks):
                     if command is None: continue
                     ctype, a1, a2, a3 = command
-                    a1 = a1 if a1 is not None else ""
-                    a2 = a2 if a2 is not None else ""
-                    a3 = a3 if a3 is not None else ""
-                    f.write(f"{i}\t({ctype}, {a1}, {a2}, {a3})\n")
+                    a1 = a1 if a1 is not None else " "
+                    a2 = a2 if a2 is not None else " "
+                    a3 = a3 if a3 is not None else " "
+                    f.write(f"{i}\t({ctype}, {a1}, {a2}, {a3} )\n")
 
 
     #=====================================================#
