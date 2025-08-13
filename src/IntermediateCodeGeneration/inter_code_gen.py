@@ -25,6 +25,7 @@ class ICG:
         self.last_seen_id = None # To remember the name of the last ID encountered
         self.current_function = None # To hold the name of the function being defined
         self.call_stack = [] # A stack to save functions to call (haven't call yet, in the middle of its args)  
+        self.rt_stack = []
         # --- Flags ---
         self.force_declare = False
         self.no_push = False
@@ -199,10 +200,12 @@ class ICG:
                     self.program_block.write_command_at(self.main_jump_line, "JP", func_start_line)
                     self.main_is_found = True
 
+                self.rt_stack.append(self.env.temp_address())
                 # Store function info.
                 self.function_table[self.current_function] = {
                     'address': self.program_block.get_line_number(),
-                    'params': []
+                    'params': [],
+                    'return_address': self.rt_stack[-1]
                 }
                 # The address of the function itself (pushed by #PID) is on the stack.
                 # Assign the current line number to it, so jumps to the function work.
@@ -231,7 +234,8 @@ class ICG:
 
             case "JUMP_BACK":
                 # Jumps to the return address, which we assume is stored at a conventional address (e.g., 4).
-                self.program_block.new_command("JP", f"@{FUNCTION_RETURN_ADDRESS}")
+                rt = self.rt_stack[-1]
+                self.program_block.new_command("JP", f"@{rt}")
                 self.current_function = None
                 self.function_scope = False
 
@@ -278,10 +282,8 @@ class ICG:
                 return_addr = self.program_block.get_line_number() + 2 # Address to return to.
                 
                 # 1. Save the return address to our conventional location (address 4).
-                if func_name == "output":
-                    self.program_block.new_command("ASSIGN", f"#{return_addr}", f"{self.output_return_address}")
-                else:
-                    self.program_block.new_command("ASSIGN", f"#{return_addr}", f"{FUNCTION_RETURN_ADDRESS}")
+                self.program_block.new_command("ASSIGN", f"#{return_addr}", f"{func_description['return_address']}")
+
                 # 2. Jump to the function's code.
                 self.program_block.new_command("JP",func_line)
                 # 3. After the call returns, move the return value (from address 0) to a new temporary.
@@ -334,7 +336,8 @@ class ICG:
                 pass
             case "PROGRAM_END":
                 last_command, arg1,_,_ = self.program_block.blocks[-1]
-                if last_command == "JP" and arg1 == "@4":
+                main_rt = self.function_table["main"]["return_address"]
+                if last_command == "JP" and arg1 == f"@{str(main_rt)}":
                     self.program_block.blocks.pop()
                 self.program_block.write_command_at(DEFAULT_RETURN_ADDRESS_LINE, "ASSIGN", f"#{self.program_block.get_line_number()}", FUNCTION_RETURN_ADDRESS)
 
@@ -349,10 +352,12 @@ class ICG:
                 self.semantic_stack.pop()
 
     def generate_output_func(self):
+        rt = self.env.temp_address() 
         line = self.program_block.get_line_number()
         self.function_table["output"] = {
                 'address': line,
-                'params': []
+                'params': [],
+                'return_address':  rt
             }
         # The address of the function itself (pushed by #PID) is on the stack.
         # Assign the current line number to it, so jumps to the function work.
@@ -367,7 +372,7 @@ class ICG:
                     })
         self.env.close_scope()
         self.program_block.new_command("PRINT", var_addr)
-        self.program_block.new_command("JP", f"@{self.output_return_address}")
+        self.program_block.new_command("JP", f"@{rt}")
 
 
 

@@ -1,2 +1,1 @@
-#16 : syntax error, illegal =
-#16 : syntax error, missing DeclarationPrime
+There is no syntax error.
