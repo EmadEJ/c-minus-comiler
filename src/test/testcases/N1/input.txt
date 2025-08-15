@@ -1,0 +1,13 @@
+int add(int x, int y){
+	return x + y;
+}
+
+int mult(int x, int y) {
+	return x * y;
+}
+
+void main(void){
+	int result;
+	result = mult(add(2, 3), add(9, 6));
+	output(result);
+}

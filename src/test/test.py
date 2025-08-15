@@ -91,3 +91,18 @@ class Test(unittest.TestCase):
     #     score1, score2 = runner.run_and_evaluate('R4')
     #     self.assertEqual(score1, 0)
     #     self.assertEqual(score2, 0)
+    
+    def test_n1(self):
+        score1, score2 = runner.run_and_evaluate('N1')
+        self.assertEqual(score1, 0)
+        self.assertEqual(score2, 0)
+        
+    def test_n2(self):
+        score1, score2 = runner.run_and_evaluate('N2')
+        self.assertEqual(score1, 0)
+        self.assertEqual(score2, 0)
+        
+    def test_n3(self):
+        score1, score2 = runner.run_and_evaluate('N3')
+        self.assertEqual(score1, 0)
+        self.assertEqual(score2, 0)
