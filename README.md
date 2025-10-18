@@ -48,7 +48,7 @@ Clone the repository.
 
 Go to the src directory.
 
-Put the input.txt. This the C-Minus source program for the compiler. 
+Ensure `input.txt` is present in the same folder as `compiler.py`. This is the C-Minus source program for the compiler.
 
 Run compiler.py by ```python3 compiler.py```.
 
