@@ -52,46 +52,6 @@ class Test(unittest.TestCase):
         self.assertEqual(score1, 0)
         self.assertEqual(score2, 0)
 
-    # def test_s1(self):
-    #     score1, score2 = runner.run_and_evaluate('S1')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
-
-    # def test_s2(self):
-    #     score1, score2 = runner.run_and_evaluate('S2')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
-
-    # def test_s3(self):
-    #     score1, score2 = runner.run_and_evaluate('S3')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
-
-    # def test_s4(self):
-    #     score1, score2 = runner.run_and_evaluate('S4')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
-
-    # def test_r1(self):
-    #     score1, score2 = runner.run_and_evaluate('R1')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
-
-    # def test_r2(self):
-    #     score1, score2 = runner.run_and_evaluate('R2')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
-
-    # def test_r3(self):
-    #     score1, score2 = runner.run_and_evaluate('R3')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
-
-    # def test_r4(self):
-    #     score1, score2 = runner.run_and_evaluate('R4')
-    #     self.assertEqual(score1, 0)
-    #     self.assertEqual(score2, 0)
-    
     def test_n1(self):
         score1, score2 = runner.run_and_evaluate('N1')
         self.assertEqual(score1, 0)
