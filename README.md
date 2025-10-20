@@ -21,25 +21,6 @@ It consists of three main phases:
 
 ---
 
-##  Project Structure
-
-# C-Minus Compiler Project Structure
-
-```
-# C-Minus Compiler Project Structure
-
-c-minus-comiler/
-│
-├── src/
-│   ├── IntermediateCodeGeneration/
-│   ├── parser/
-│   ├── scanner/
-│   ├── test/
-│   └── compiler.py          # Main program
-├── testcase/
-└── README.md
-```
-
 ##  Running the Code
 
 Make sure you have **Python 3.8+** installed and **anytree** library. 
@@ -57,3 +38,24 @@ After running compiler.py three text files will be produced:
 1. `output.txt` – contains the generated intermediate code
 2. `parse_tree.txt` – contains the parse tree
 3. `syntax_errors.txt` – contains any syntax errors detected
+
+---
+
+##  Project Structure
+
+
+```
+# C-Minus Compiler Project Structure
+
+c-minus-comiler/
+│
+├── src/
+│   ├── IntermediateCodeGeneration/
+│   ├── parser/
+│   ├── scanner/
+│   ├── test/
+│   └── compiler.py          # Main program
+├── testcase/
+└── README.md
+```
+
